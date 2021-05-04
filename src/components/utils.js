@@ -13,15 +13,11 @@ export function getPresetListRef() {
 }
 
 export function getPresetList() {
-    console.log(presetList)
     return [...presetList];
 }
 
 export function getPresetGroups(presetId) {
-    for(preset of presetList) {
-        if(preset.id === presetId) return preset.groups;
-    }
-    return [];
+    return presetList.find(item => item.id === presetId)?.groups;
 }
 
 export function preset(title, color) {
@@ -53,12 +49,10 @@ export function addGroup(group, presetId) {
     presetList = presetList.map((preset) => {
         if (
             preset.id === presetId &&
-            preset.groups.filter(((grp) => grp.id === group.id).length === 0)
+            !preset.groups.find(grp => grp.id === group.id)
         ) {
-            console.log("done")
             preset.groups.push(group);
         }
-        console.log("finished adding group")
         return preset;
     });
 }
@@ -88,6 +82,7 @@ export function updateGroup(group, presetId) {
        if(prs.id === presetId && prs.groups.filter(grp => grp.id === group) !== 0) {
            prs.groups = [...prs.groups.filter(grp => grp.id !== group.id), group]
        }
+       return prs;
    })
 }
 

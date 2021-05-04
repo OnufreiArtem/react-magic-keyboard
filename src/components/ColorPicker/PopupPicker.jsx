@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { HexColorPicker } from "react-colorful";
 import styled from 'styled-components'
 
@@ -12,6 +12,7 @@ const ColorSquare = styled.div`
     border-radius: 10px;
     border: 3px solid #fff;
     background-color: ${props => props.color || `#fff`};
+    cursor: pointer;
 
 `
 
@@ -27,12 +28,6 @@ export default function PopupPicker(props) {
     const onChangeEvent = (color, e) => {
         props.onChange(color, e);
         setColorPicked(color);
-    }
-
-    const onChangeCompleteEvent = (color, e) => {
-        if(props.onChange !== undefined)
-        props.onChange(color, e)
-        setColorPicked(color)
     }
 
     return (

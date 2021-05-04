@@ -1,5 +1,4 @@
-import { nanoid } from "nanoid";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import styled from "styled-components";
 import OptionControlList from "./OptionControlList";
@@ -11,17 +10,23 @@ const ControlPanelContainer = styled.div`
 `;
 
 export default function ControlPanel(props) {
-    const [presets, setPresets] = useState(service.getPresetListRef());
-    const [selection, setSelection] = useState(undefined);
+    const [presets, setPresets] = useState(service.getPresetList());
+    const [selectedPreset, setSelectedPreset] = useState(undefined);
+    const [selectedGroup, setSelectedGroup] = useState(undefined);
+    const [groupPanelVisible, makeGroupVisible] = useState(false);
 
     const addPreset = (value) => {
-        service.addPreset(service.preset(value, "#fff"));
+        const nPreset = service.preset(value, `#fff`);
+        service.addPreset(nPreset);
         service.updateStorage();
         setPresets(service.getPresetList());
         console.log(`adding ${value}`);
     };
 
     const removePreset = (id) => {
+        console.log(`Selection removing: ${id === selectedPreset}`)
+        if(id === selectedPreset) setSelectedPreset(undefined);
+        console.log(`Selected preset: ${selectedPreset} `)
         service.removePreset(id);
         service.updateStorage();
         setPresets(service.getPresetList());
@@ -43,16 +48,35 @@ export default function ControlPanel(props) {
     }
 
     const addGroup = (value, presetId) => {
-        service.addGroup(service.group(value, '#fff'), presetId);
+        const nGroup = service.group(value, `#fff`);
+        service.addGroup(nGroup, presetId);
         service.updateStorage();
         setPresets(service.getPresetList());
     }
 
     const removeGroup = (id, presetId) => {
+        if(id === selectedGroup) setSelectedGroup(undefined);
         service.removeGroup(id, presetId)
         service.updateStorage();
         setPresets(service.getPresetList());
     }
+
+    useEffect(() => {
+        if(presets.length === 0) setSelectedPreset(undefined);     
+    }, [presets])
+
+    useEffect(() => {
+        if(!selectedPreset) {
+            setSelectedGroup(undefined);
+            makeGroupVisible(false)
+            console.log(`No preset selected`)
+        }
+        else {
+            makeGroupVisible(true);
+            console.log(`Selected: ${selectedPreset}`)
+        } 
+        
+    }, [selectedPreset])
 
     return (
         <ControlPanelContainer>
@@ -61,16 +85,16 @@ export default function ControlPanel(props) {
                 list={presets}
                 onAdd={(value) => addPreset(value)}
                 onRemove={(id) => removePreset(id)}
-                onSelectionChanged={(id) => setSelection(id)}
+                onSelectionChanged={(id) => setSelectedPreset(id)/*{ if(service.getPresetList().find(item => item.id = id)) setSelectedPreset(id)}*/}
                 onColorChanged={(color, preset, e) => onPresetColorChanged(color, preset, e)}
             />
-            {selection ? (
+            {groupPanelVisible ? (
                 <OptionControlList
                     placeholder={"Your group name here"}
-                    list={service.getPresetGroups(selection)}
-                    onAdd={(value) => addGroup(value, selection)}
-                    onRemove={(id) => removeGroup(id, selection)}
-                    onSelectionChanged={(id) => setSelection(id)}
+                    list={service.getPresetGroups(selectedPreset)}
+                    onAdd={(value) => addGroup(value, selectedPreset)}
+                    onRemove={(id) => removeGroup(id, selectedPreset)}
+                    onSelectionChanged={(id) => setSelectedGroup(id)}
                     onColorChanged={(color, group, e) => onGroupColorChanged(color, group, e)}
                 />
             ) : (

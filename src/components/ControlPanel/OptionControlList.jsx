@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { nanoid } from 'nanoid';
 
-import * as service from "../utils";
-
 import styled from "styled-components";
 import OptionColorItem from "./OptionColorItem";
-import { isDOMComponentElement } from "react-dom/test-utils";
 
 const AddInput = styled.input`
     display: block;
@@ -31,6 +28,11 @@ export default function OptionControlList({
     const [inputContent, setInputContent] = useState("");
     const [selected, setSelected] = useState(undefined);
 
+    const onClickEvent = (id) => {
+        setSelected(id);
+        onSelectionChanged(id)
+    }
+
     return (
         <ControlListContainer>
             <AddInput
@@ -39,14 +41,14 @@ export default function OptionControlList({
                 onChange={(e) => setInputContent(e.target.value)}
             />
             <AddBtn onClick={() => onAdd(inputContent)}>Add</AddBtn>
-            {list.map((item) => 
+            {list?.map((item) => 
                 <OptionColorItem
                     title={item.title}
                     color={item.color}
                     key={nanoid()}
                     selected={selected === item.id}
                     onColorChanged={(color, e) => onColorChanged(color, item, e)}
-                    onClick={() => {setSelected(item.id); onSelectionChanged(item.id)}}
+                    onClick={() => onClickEvent(item.id)}
                     onRemoveClicked={() => onRemove(item.id)}
                 />
             )}

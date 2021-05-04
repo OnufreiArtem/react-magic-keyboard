@@ -38,7 +38,7 @@ export default function OptionColorItem({
                 <PopupPicker color={color}
                     onChange={(color, e) => onColorChanged(color, e)}
                 ></PopupPicker>
-                <button onClick={() => onRemoveClicked()}>Remove</button>
+                <button onClick={(e) => {e.stopPropagation(); onRemoveClicked()}}>Remove</button>
             </ControlContainer>
         </ItemContainer>
     );
