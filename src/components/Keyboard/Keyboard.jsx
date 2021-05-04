@@ -1,6 +1,10 @@
 import { nanoid } from "nanoid";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+
+import * as constants from '../constants';
+import * as service from '../utils';
+
 import KButton from './KButton'
 
 const KContainerLayout = styled.div`
@@ -52,25 +56,7 @@ const LogoFeature = styled.span`
 
 export default function KeyBoard({preset}) {
 
-    const kData = [
-        {value: "numlk", area: "btn1"},
-        {value: "/", area: "btn2"},
-        {value: "*", area: "btn3"},
-        {value: "-", area: "ebtn"},
-        {value: "7", area: "btn4"},
-        {value: "8", area: "btn5"},
-        {value: "9", area: "btn6"},
-        {value: "+", area: "plus"},
-        {value: "4", area: "btn7"},
-        {value: "5", area: "btn8"},
-        {value: "6", area: "btn9"},
-        {value: "1", area: "btn10"},
-        {value: "2", area: "btn11"},
-        {value: "3", area: "btn12"},
-        {value: "enter", area: "enter"},
-        {value: "0", area: "zero"},
-        {value: ".", area: "bbtn"}
-    ];
+    const kData = constants.KEY_TYPES;
 
     const colorFromPreset = (value) => {
         let color = `transparent`;
@@ -80,12 +66,6 @@ export default function KeyBoard({preset}) {
 
         return color;
     }
-
-    useEffect(() => {
-        console.log(preset?.color)
-    }, [preset])
-
-
 
     return(
         <BoardContainer>

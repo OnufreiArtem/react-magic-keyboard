@@ -63,6 +63,7 @@ export default function ControlPanel(props) {
 
     useEffect(() => {
         if(presets.length === 0) setSelectedPreset(undefined);     
+        
     }, [presets])
 
     useEffect(() => {

@@ -102,7 +102,7 @@ export function updateStorage() {
 
 /* Logic for selected preset */
 
-let selectedPreset = JSON.parse(window.localStorage.getItem(SELECTED_PRESET));
+export let selectedPreset = JSON.parse(window.localStorage.getItem(SELECTED_PRESET));
 selectedPreset = selectedPreset === 'none' ? undefined : selectedPreset;
 
 if(!findPreset(selectedPreset?.id)) selectedPreset = undefined;

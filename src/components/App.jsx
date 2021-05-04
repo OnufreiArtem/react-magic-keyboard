@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Keyboard from "./Keyboard/Keyboard";
+
+import * as service from "./utils";
 
 import styled from "styled-components";
 import ControlPanel from "./ControlPanel/ControlPanel";
@@ -34,15 +36,16 @@ const RightPanel = styled.div`
 `;
 
 function App() {
+
+    const [selectedPreset, setSelectedPreset] = useState(undefined);
+
     return (
         <MainLayout>
             <LeftPanel>
                 <PanelTitle>
                     Hyper<TitleDecorator>Z</TitleDecorator>
                 </PanelTitle>
-                <ControlPanel>
-
-                </ControlPanel>
+                <ControlPanel />
             </LeftPanel>
 
             <RightPanel>
