@@ -1,7 +1,8 @@
 import { nanoid } from "nanoid";
 
-const PRESETS_STORAGE = "PrEsEt_StOrAgE";
+import { PRESETS_STORAGE, SELECTED_PRESET, SELECTED_GROUP } from "./constants"
 
+/*  Logic for presets and groups */
 let presetList = JSON.parse(window.localStorage.getItem(PRESETS_STORAGE));
 
 if (presetList === undefined || presetList === null) {
@@ -45,6 +46,10 @@ export function addPreset(preset) {
             : [...presetList];
 }
 
+export function findPreset(id) {
+    return getPresetList().find(prs => prs.id === id);
+}
+
 export function addGroup(group, presetId) {
     presetList = presetList.map((preset) => {
         if (
@@ -56,6 +61,11 @@ export function addGroup(group, presetId) {
         return preset;
     });
 }
+
+export function findGroup(id, presetId) {
+    return getPresetList().find(prs => prs.id === presetId)?.groups.find(grp => grp.id === id);
+}
+
 
 export function removePreset(presetId) {
     presetList = presetList.filter((prs) => prs.id !== presetId);
@@ -88,4 +98,34 @@ export function updateGroup(group, presetId) {
 
 export function updateStorage() {
     window.localStorage.setItem(PRESETS_STORAGE, JSON.stringify(presetList));
+}
+
+/* Logic for selected preset */
+
+let selectedPreset = JSON.parse(window.localStorage.getItem(SELECTED_PRESET));
+selectedPreset = selectedPreset === 'none' ? undefined : selectedPreset;
+
+if(!findPreset(selectedPreset?.id)) selectedPreset = undefined;
+
+export function getSelectedPreset() {
+    return selectedPreset ? Object.assign(selectedPreset) : undefined;
+} 
+
+export function updateSelectedPreset(nSelected) {
+    window.localStorage.setItem(SELECTED_PRESET, JSON.stringify(nSelected ? nSelected : 'none'));
+}
+
+/* Logic for selected group */
+
+let selectedGroup = JSON.parse(window.localStorage.getItem(SELECTED_GROUP));
+selectedGroup = selectedGroup === 'none' ? undefined : selectedGroup;
+
+if(!findGroup(selectedGroup?.id)) selectedGroup = undefined;
+
+export function getSelectedGroup() {
+    return selectedGroup ? Object.assign(selectedGroup) : undefined;
+} 
+
+export function updateSelectedGroup(nSelected) {
+    window.localStorage.setItem(SELECTED_GROUP, JSON.stringify(nSelected ? nSelected : 'none'));
 }

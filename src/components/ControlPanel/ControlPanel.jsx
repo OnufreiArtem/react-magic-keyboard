@@ -11,8 +11,8 @@ const ControlPanelContainer = styled.div`
 
 export default function ControlPanel(props) {
     const [presets, setPresets] = useState(service.getPresetList());
-    const [selectedPreset, setSelectedPreset] = useState(undefined);
-    const [selectedGroup, setSelectedGroup] = useState(undefined);
+    const [selectedPreset, setSelectedPreset] = useState(service.getSelectedPreset());
+    const [selectedGroup, setSelectedGroup] = useState(service.getSelectedGroup());
     const [groupPanelVisible, makeGroupVisible] = useState(false);
 
     const addPreset = (value) => {
@@ -75,8 +75,14 @@ export default function ControlPanel(props) {
             makeGroupVisible(true);
             console.log(`Selected: ${selectedPreset}`)
         } 
+        service.updateSelectedPreset(service.findPreset(selectedPreset));
+        setSelectedGroup(undefined);
         
     }, [selectedPreset])
+
+    useEffect(() => {
+        service.updateSelectedGroup(service.findGroup(selectedGroup, selectedPreset));
+    }, [selectedGroup])
 
     return (
         <ControlPanelContainer>
