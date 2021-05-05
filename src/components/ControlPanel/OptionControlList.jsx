@@ -20,6 +20,7 @@ const ControlListContainer = styled.div`
 export default function OptionControlList({
     placeholder,
     list,
+    areItemsToggle = false,
     onAdd,
     onRemove,
     onSelectionChanged,
@@ -29,8 +30,10 @@ export default function OptionControlList({
     const [selected, setSelected] = useState(undefined);
 
     const onClickEvent = (id) => {
-        setSelected(id);
-        onSelectionChanged(id)
+        let nSelected = undefined;
+        nSelected = (areItemsToggle && id === selected) ? undefined : id;
+        setSelected(nSelected);
+        onSelectionChanged(nSelected)
     }
 
     return (

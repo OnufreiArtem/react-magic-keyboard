@@ -88,12 +88,15 @@ export function updatePreset(preset) {
 }
 
 export function updateGroup(group, presetId) {
-   presetList = presetList.map(prs => {
-       if(prs.id === presetId && prs.groups.filter(grp => grp.id === group.id) !== 0) {
-           prs.groups = [...prs.groups.filter(grp => grp.id !== group.id), group]
+    presetList = presetList.map(prs => {
+       if(prs.id === presetId && prs.groups.find(grp => grp.id === group.id)) {
+           prs.groups = prs.groups.map(grp => {
+                if(grp.id === group.id) return group;
+                return grp;
+           });
        }
        return prs;
-   })
+    })
 }
 
 export function updateStorage() {

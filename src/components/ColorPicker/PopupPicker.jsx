@@ -32,10 +32,10 @@ export default function PopupPicker(props) {
 
     return (
         <ColorSquareLayout>
-            <ColorSquare color={colorPicked} onClick={_ => setShowPicker(!showPicker)}></ColorSquare>
+            <ColorSquare color={colorPicked} onClick={e => {e.stopPropagation(); setShowPicker(!showPicker)}}></ColorSquare>
             { showPicker && (
                 <PickerContainer>
-                    <HexColorPicker onChange={ (color, e) => onChangeEvent(color, e)} /*onChangeComplete={(color, e) => onChangeCompleteEvent(color, e) }*//>
+                    <HexColorPicker color={colorPicked} onChange={ (color, e) => onChangeEvent(color, e)} />
                 </PickerContainer>
             ) }
         </ColorSquareLayout>

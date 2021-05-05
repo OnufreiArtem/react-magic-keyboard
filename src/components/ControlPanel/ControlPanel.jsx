@@ -54,11 +54,13 @@ export default function ControlPanel(props) {
         groupCopy.color = color;
         service.updatePreset(groupCopy);
         service.updateStorage();
+        service.updateSelectedGroup(group);
     };
 
     const addGroup = (value, presetId) => {
         const nGroup = service.group(value, `#fff`);
         service.addGroup(nGroup, presetId);
+        if(selectedPreset.id === presetId) service.updateSelectedPreset(service.findPreset(presetId));
         service.updateStorage();
         setPresets(service.getPresetList());
     };
@@ -116,6 +118,7 @@ export default function ControlPanel(props) {
                 <OptionControlList
                     placeholder={"Your group name here"}
                     list={service.getPresetGroups(selectedPreset)}
+                    areItemsToggle
                     onAdd={(value) => addGroup(value, selectedPreset)}
                     onRemove={(id) => removeGroup(id, selectedPreset)}
                     onSelectionChanged={(id) => setSelectedGroup(id)}

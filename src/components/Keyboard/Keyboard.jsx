@@ -40,7 +40,9 @@ const KBoardLayout = styled.div`
     border-left-color: #050505;
     border-right-color: #050505;
     border-bottom-color: #302f2f;
+    user-select: none;
 `;
+
 const KBoardLogo = styled.span`
     display: block;
     color: ${(props) => props.color || `#fff`};
@@ -48,6 +50,7 @@ const KBoardLogo = styled.span`
     font-family: "Zen Dots", cursive;
     margin-bottom: 30px;
 `;
+
 const LogoFeature = styled.span`
     color: red;
 `;
@@ -61,7 +64,7 @@ export default function KeyBoard({ preset, groups }) {
             console.log("Called");
             setSelectedPreset(service.getSPFromStorage());
             setSelectedGroup(service.getSGFromStorage());
-        }, 2000);
+        }, 500);
 
         return () => clearInterval(timer);
     }, [selectedPreset]);
@@ -89,17 +92,39 @@ export default function KeyBoard({ preset, groups }) {
         return false;
     }
 
+    const isInOtherGroups = (value, group, preset) => {
+        if(group && preset) {
+            let isInOther = false;
+            for(const grp of preset.groups) {
+                if(grp.id === group.id) continue;
+                isInOther |= isInGroup(value, grp);
+            }
+            return isInOther;
+        }
+        return false;
+    }
+
+    const removeFromOtherGroups = (value, group, preset) => {
+        if(group && preset) {
+            preset.groups = preset.groups.map(grp => {
+                if(grp.id === group.id) return grp;
+                grp.keys = [...grp.keys.filter(key => key !== value)];
+                return grp;
+            })
+            return preset;
+        }
+
+        return undefined;
+    }
+ 
     const isInPreset = (value) => {
         let contains = false;
         
         if(selectedPreset === undefined) return false;
 
         for(const grp of selectedPreset?.groups) {
-            console.log(grp);
             contains |= isInGroup(value, grp)
         }
-
-        console.log(`Contains: ${contains}`)
         return contains;
     }
 
@@ -115,24 +140,33 @@ export default function KeyBoard({ preset, groups }) {
                         <KButton
                             key={nanoid()}
                             area={kdatum.area}
-                            isSelected={isInPreset(kdatum.value)}
+                            isSelected={!selectedGroup ? isInPreset(kdatum.value) : isInGroup(kdatum.value, selectedGroup)}
                             selectionColor={colorFromPreset(kdatum.value)}
                             value={kdatum.value.toUpperCase()}
-                            onClick={(toggle) => {if(selectedGroup !== undefined){
-                                if(toggle) {
-                                    selectedGroup.keys = [...new Set([...selectedGroup.keys, kdatum.value])]
-                                    console.log(selectedGroup.keys)
-                                    service.updateGroup(selectedGroup, selectedPreset.id);
-                                    service.updateStorage();
+                            onClick={() => {
+                                if(selectedPreset && selectedGroup) {
+                                    if(isInGroup(kdatum.value, selectedGroup)) {
+                                        const nGroup = {...selectedGroup, keys: [...selectedGroup.keys.filter(k => k !== kdatum.value)]}
+                                        service.updateSelectedGroup(nGroup)
+                                        service.updateGroup(nGroup, selectedPreset.id);
+                                        service.updateStorage();
+                                        console.log('Remove key')
+                                    }
+                                    else {
+                                        const nPreset = removeFromOtherGroups(kdatum.value, selectedGroup, selectedPreset);
+                                        if(nPreset !== undefined) {
+                                            service.updatePreset(nPreset);
+                                            service.updateSelectedPreset(nPreset)
+                                        }
+                                            
+                                        const nGroup = {...selectedGroup, keys: [...new Set([...selectedGroup.keys, kdatum.value])]};
+                                        service.updateSelectedGroup(nGroup);
+                                        service.updateGroup(nGroup, selectedPreset.id);
+                                        service.updateStorage();
+                                        console.log('Add key');
+                                    }
                                 }
-                                else {
-                                    selectedGroup.keys =[...selectedGroup.keys.filter(key => key.value !== kdatum.value)]
-                                    console.log(selectedGroup.keys)
-                                    service.updateGroup(selectedGroup, selectedPreset.id);
-                                    service.updateStorage();
-                                }
-                                console.log(`Group selected`)
-                            }; console.log(`Toggle is ${toggle} and value is ${kdatum.value}`);}}
+                            }}
                         />
                     ))}
                 </KContainerLayout>
