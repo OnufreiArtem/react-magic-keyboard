@@ -89,7 +89,7 @@ export function updatePreset(preset) {
 
 export function updateGroup(group, presetId) {
    presetList = presetList.map(prs => {
-       if(prs.id === presetId && prs.groups.filter(grp => grp.id === group) !== 0) {
+       if(prs.id === presetId && prs.groups.filter(grp => grp.id === group.id) !== 0) {
            prs.groups = [...prs.groups.filter(grp => grp.id !== group.id), group]
        }
        return prs;
@@ -102,8 +102,7 @@ export function updateStorage() {
 
 /* Logic for selected preset */
 
-export let selectedPreset = JSON.parse(window.localStorage.getItem(SELECTED_PRESET));
-selectedPreset = selectedPreset === 'none' ? undefined : selectedPreset;
+export let selectedPreset = getSPFromStorage();
 
 if(!findPreset(selectedPreset?.id)) selectedPreset = undefined;
 
@@ -113,6 +112,11 @@ export function getSelectedPreset() {
 
 export function updateSelectedPreset(nSelected) {
     window.localStorage.setItem(SELECTED_PRESET, JSON.stringify(nSelected ? nSelected : 'none'));
+}
+
+export function getSPFromStorage(){
+    const sp = JSON.parse(window.localStorage.getItem(SELECTED_PRESET));
+    return sp === 'none' ? undefined : sp;
 }
 
 /* Logic for selected group */
@@ -128,4 +132,17 @@ export function getSelectedGroup() {
 
 export function updateSelectedGroup(nSelected) {
     window.localStorage.setItem(SELECTED_GROUP, JSON.stringify(nSelected ? nSelected : 'none'));
+}
+
+export function getSGFromStorage(){
+    const sg = JSON.parse(window.localStorage.getItem(SELECTED_GROUP));
+    return sg === 'none' ? undefined : sg;
+}
+
+/* Logic for selected color */
+
+export let selectedPresetColor = selectedPreset?.color || '#fff';
+
+export function setSelectedPresetColor(color) {
+    selectedPresetColor = color;
 }

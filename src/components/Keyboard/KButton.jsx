@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import styled from 'styled-components';
 
@@ -35,12 +35,18 @@ const KButtonLayout = styled.div`
 `
 
 export default function KButton(props) {
-    const {area, selectionColor, value} = props;
-    const [selected, setSelected] = useState(false);
+    const {area, selectionColor, value, isSelected} = props;
+    const [selected, setSelected] = useState(isSelected);
 
     const clickEvent = () => {
+        props.onClick(!selected);
         setSelected(!selected);
     }
 
-    return <KButtonLayout area={area} color={selectionColor} selected={selected} onClick={() => clickEvent()}>{value}</KButtonLayout>
+    useEffect(() => {
+        //console.log(`Is selected is : ${isSelected}`)
+    })
+
+
+    return <KButtonLayout area={area} color={'#fff'} selected={selected} onClick={() => clickEvent()}>{value}</KButtonLayout>
 }

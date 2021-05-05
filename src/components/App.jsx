@@ -45,11 +45,11 @@ function App() {
                 <PanelTitle>
                     Hyper<TitleDecorator>Z</TitleDecorator>
                 </PanelTitle>
-                <ControlPanel />
+                <ControlPanel onSelectionChanged={(preset) => setSelectedPreset(preset)} />
             </LeftPanel>
 
             <RightPanel>
-                <Keyboard></Keyboard>
+                <Keyboard preset={selectedPreset}></Keyboard>
             </RightPanel>
         </MainLayout>
     );
