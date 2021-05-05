@@ -60,9 +60,9 @@ export default function ControlPanel(props) {
     const addGroup = (value, presetId) => {
         const nGroup = service.group(value, `#fff`);
         service.addGroup(nGroup, presetId);
-        if(selectedPreset.id === presetId) service.updateSelectedPreset(service.findPreset(presetId));
         service.updateStorage();
         setPresets(service.getPresetList());
+        service.updateSelectedPreset(service.findPreset(selectedPreset));
     };
 
     const removeGroup = (id, presetId) => {
