@@ -1,5 +1,6 @@
 import { nanoid } from "nanoid";
 import React, { useState, useEffect } from "react";
+import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import * as constants from "../constants";
@@ -55,7 +56,7 @@ const LogoFeature = styled.span`
     color: red;
 `;
 
-export default function KeyBoard({ presets, selectedPreset = undefined, selectedGroup = undefined }) {
+function Keyboard({ presets, selectedPreset = undefined, selectedGroup = undefined }) {
 
     const addKey = (key, groupId, presetId) => {
         let listCopy = [...getListFromStore()];
@@ -183,3 +184,12 @@ export default function KeyBoard({ presets, selectedPreset = undefined, selected
         </BoardContainer>
     );
 }
+
+
+Keyboard.propTypes = {
+    presets: PropTypes.arrayOf(PropTypes.object),
+    selectedPreset: PropTypes.object,
+    selectedGroup: PropTypes.object,
+}
+
+export default Keyboard;
