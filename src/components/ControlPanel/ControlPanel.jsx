@@ -10,7 +10,11 @@ const ControlPanelContainer = styled.div`
     padding: 20px;
 `;
 
-export default function ControlPanel(props) {
+export default function ControlPanel({
+    onPresetsChanged,
+    onSelectedPresetChanged,
+    onSelectedGroupChanged
+}) {
     const [presets, setPresets] = useState([]);
     const [selectedPreset, setSelectedPreset] = useState(undefined);
     const [selectedGroup, setSelectedGroup] = useState(undefined);
@@ -18,7 +22,7 @@ export default function ControlPanel(props) {
     const addPreset = (value) => {
         window.localStorage.setItem(
             constants.PRESETS_STORAGE,
-            JSON.stringify([...presets, service.preset(value, '#fff')])
+            JSON.stringify([...getListFromStore(), service.preset(value, '#fff')])
         );
         updateList();
     };
@@ -26,7 +30,7 @@ export default function ControlPanel(props) {
     const removePreset = (id) => {
         window.localStorage.setItem(
             constants.PRESETS_STORAGE,
-            JSON.stringify([...presets.filter((prs) => prs.id !== id)])
+            JSON.stringify([...getListFromStore().filter((prs) => prs.id !== id)])
         );
         updateList();
 
@@ -42,7 +46,7 @@ export default function ControlPanel(props) {
 
     const onPresetColorChanged = (color, preset, e) => {
         //console.log(color);
-        let listCopy = [...presets];
+        let listCopy = [...getListFromStore()];
         listCopy = listCopy.map(prs => {
             if(prs.id === preset.id) return {...prs, color: color};
             return prs;
@@ -60,7 +64,7 @@ export default function ControlPanel(props) {
 
         console.log(color)
 
-        let listCopy = [...presets];
+        let listCopy = [...getListFromStore()];
         console.log(listCopy)
         listCopy = listCopy.map(prs => {
             if(prs.id === presetId) {
@@ -82,7 +86,7 @@ export default function ControlPanel(props) {
     };
 
     const addGroup = (value, presetId) => {
-        let listCopy = [...presets];
+        let listCopy = [...getListFromStore()];
         listCopy = listCopy.map(prs => {
             if(prs.id === presetId) {
                 prs.groups.push(service.group(value, '#fff'))
@@ -100,7 +104,7 @@ export default function ControlPanel(props) {
     }
 
     const removeGroup = (id, presetId) => {
-        let listCopy = [...presets];
+        let listCopy = [...getListFromStore()];
         listCopy = listCopy.map(prs => {
             if(prs.id === presetId) {
                 prs.groups = [...prs.groups.filter(grp => grp.id !== id)]
@@ -123,6 +127,10 @@ export default function ControlPanel(props) {
         }
     }
 
+    const getListFromStore = () => {
+        return [...JSON.parse(window.localStorage.getItem(constants.PRESETS_STORAGE)) || []]
+    }
+
     useEffect(() => {
         updateList();
         updateSelPreset();
@@ -134,6 +142,7 @@ export default function ControlPanel(props) {
             window.localStorage.getItem(constants.PRESETS_STORAGE)
         );
         setPresets(list || []);
+        onPresetsChanged(list || []);
         console.log("Updated preset list")
     }
 
@@ -142,19 +151,18 @@ export default function ControlPanel(props) {
             window.localStorage.getItem(constants.SELECTED_PRESET)
         );
         setSelectedPreset(prs === "none" ? undefined : prs);
+        onSelectedPresetChanged(prs === "none" ? undefined : prs)
         console.log("Updated selected preset")
     }
+    
     const updateSelGroup = () => {
         const grp = JSON.parse(
             window.localStorage.getItem(constants.SELECTED_GROUP)
         );
        
         setSelectedGroup(grp === "none" ? undefined : grp);
+        onSelectedGroupChanged(grp === "none" ? undefined : grp)
         console.log("Updated selected group")
-    }
-
-    const findPreset = (id) => {
-        return presets.find(prs => prs.id === id);
     }
 
     return (

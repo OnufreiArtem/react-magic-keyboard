@@ -55,126 +55,131 @@ const LogoFeature = styled.span`
     color: red;
 `;
 
-export default function KeyBoard({ preset, groups }) {
-    const [selectedPreset, setSelectedPreset] = useState(undefined);
-    const [selectedGroup, setSelectedGroup] = useState(undefined);
-/*
+export default function KeyBoard({ presets, selectedPreset = undefined, selectedGroup = undefined }) {
+
+    const addKey = (key, groupId, presetId) => {
+        let listCopy = [...getListFromStore()];
+
+        console.log(listCopy)
+        listCopy = listCopy.map(prs => {
+            if(prs.id === presetId) {
+                prs.groups = prs.groups.map(grp => {
+                    if(grp.id === groupId) {
+                        grp.keys = [...new Set([...grp.keys, key])];
+                    } else {
+                        grp.keys = grp.keys.filter(k => k !== key);
+                    }
+                    return grp;
+                })
+            }
+            return prs;
+        })
+        console.log(listCopy)
+
+        window.localStorage.setItem(
+            constants.PRESETS_STORAGE,
+            JSON.stringify([...listCopy])
+        );
+        updateList();
+    }
+
+    const removeKey = (key, groupId, presetId) => {
+
+        let listCopy = [...getListFromStore()];
+
+        listCopy = listCopy.map(prs => {
+            if(prs.id === presetId) {
+                prs.groups = prs.groups.map(grp => {
+                    if(grp.id === groupId) {
+                        grp.keys = grp.keys.filter(k => k !== key);
+                    }
+                    return grp;
+                })
+            }
+            return prs;
+        })
+
+        window.localStorage.setItem(
+            constants.PRESETS_STORAGE,
+            JSON.stringify([...listCopy])
+        );
+        updateList();
+
+    }
+
     useEffect(() => {
-        const timer = setInterval(() => {
-            console.log("Called");
-            setSelectedPreset(service.getSPFromStorage());
-            setSelectedGroup(service.getSGFromStorage());
-        }, 500);
+        updateList();
+        updateSelPreset();
+        updateSelGroup();
+    }, [])
 
-        return () => clearInterval(timer);
-    }, [selectedPreset]);
-
-    const kData = constants.KEY_TYPES;
-
-    const colorFromPreset = (value) => {
-        if(selectedPreset) {
-            if(selectedGroup) {
-                return selectedGroup?.keys?.includes(value) ? selectedGroup?.color : `transparent`;
-            }
-            
-            for(const group of selectedPreset.groups) {
-                if(group.keys.includes(value)) return group.color;
-            }
-        } 
-
-        return `transparent`;
-    };
-
-    const isInGroup = (value, group) => {
-        if(group) {
-            return group.keys.includes(value)
-        }
-        return false;
+    const getListFromStore = () => {
+        return [...JSON.parse(window.localStorage.getItem(constants.PRESETS_STORAGE)) || []]
     }
 
-    const isInOtherGroups = (value, group, preset) => {
-        if(group && preset) {
-            let isInOther = false;
-            for(const grp of preset.groups) {
-                if(grp.id === group.id) continue;
-                isInOther |= isInGroup(value, grp);
+    const updateList = () => {
+        const list = JSON.parse(
+            window.localStorage.getItem(constants.PRESETS_STORAGE)
+        );
+        //setPresets(list || []);
+        console.log("Updated preset list in Keyboard")
+    }
+
+    const updateSelPreset = () => {
+        const prs = JSON.parse(
+            window.localStorage.getItem(constants.SELECTED_PRESET)
+        );
+        //setSelectedPreset(prs === "none" ? undefined : prs);
+        console.log("Updated selected preset in Keyboard")
+    }
+    const updateSelGroup = () => {
+        const grp = JSON.parse(
+            window.localStorage.getItem(constants.SELECTED_GROUP)
+        );
+       
+        //setSelectedGroup(grp === "none" ? undefined : grp);
+        console.log("Updated selected group in Keyboard")
+    }
+
+    const isBtnSelected = (value, presetId, groupId) => {
+        if(presetId === undefined) return false;
+        if(groupId === undefined) return getListFromStore().find(prs => prs.id === presetId)?.groups.reduce((acc, curr) => [...acc, ...curr.keys], []).includes(value)
+        return getListFromStore().
+            find(prs => prs.id === presetId)?.groups.
+            find(grp => grp.id === groupId)?.keys.includes(value) || false;
+    }
+
+    const peakColor = (value, presetId, groupId) => {
+        if(presetId) {
+            if(groupId) {
+                return getListFromStore().find(prs => prs.id === presetId).groups.find(grp => grp.id === groupId)?.color || "#fff"           
             }
-            return isInOther;
-        }
-        return false;
-    }
-
-    const removeFromOtherGroups = (value, group, preset) => {
-        if(group && preset) {
-            preset.groups = preset.groups.map(grp => {
-                if(grp.id === group.id) return grp;
-                grp.keys = [...grp.keys.filter(key => key !== value)];
-                return grp;
-            })
-            return preset;
+            return getListFromStore().find(prs => prs.id === presetId).groups.find(grp => grp.keys.includes(value))?.color || '#fff'
         }
 
-        return undefined;
-    }
- 
-    const isInPreset = (value) => {
-        let contains = false;
-        
-        if(selectedPreset === undefined) return false;
-
-        for(const grp of selectedPreset?.groups) {
-            contains |= isInGroup(value, grp)
-        }
-        return contains;
+        return '#fff';
     }
 
     return (
         <BoardContainer>
             <KBoardLayout>
-                <KBoardLogo color={selectedPreset?.color || `#fff`}>
+                <KBoardLogo color={presets.find(prs => prs.id === selectedPreset)?.color || `#fff`}>
                     Hyper<LogoFeature>Z</LogoFeature>
                 </KBoardLogo>
 
                 <KContainerLayout>
-                    {kData.map((kdatum) => (
+                    {constants.KEY_TYPES.map((kdatum) => (
                         <KButton
                             key={nanoid()}
                             area={kdatum.area}
-                            isSelected={!selectedGroup ? isInPreset(kdatum.value) : isInGroup(kdatum.value, selectedGroup)}
-                            selectionColor={colorFromPreset(kdatum.value)}
+                            isSelected={isBtnSelected(kdatum.value, selectedPreset, selectedGroup)}
+                            selectionColor={peakColor(kdatum.value, selectedPreset, selectedGroup)}
                             value={kdatum.value.toUpperCase()}
-                            onClick={() => {
-                                if(selectedPreset && selectedGroup) {
-                                    if(isInGroup(kdatum.value, selectedGroup)) {
-                                        const nGroup = {...selectedGroup, keys: [...selectedGroup.keys.filter(k => k !== kdatum.value)]}
-                                        service.updateSelectedGroup(nGroup)
-                                        service.updateGroup(nGroup, selectedPreset.id);
-                                        service.updateStorage();
-                                        console.log('Remove key')
-                                    }
-                                    else {
-                                        const nPreset = removeFromOtherGroups(kdatum.value, selectedGroup, selectedPreset);
-                                        if(nPreset !== undefined) {
-                                            service.updatePreset(nPreset);
-                                            service.updateSelectedPreset(nPreset)
-                                        }
-                                            
-                                        const nGroup = {...selectedGroup, keys: [...new Set([...selectedGroup.keys, kdatum.value])]};
-                                        service.updateSelectedGroup(nGroup);
-                                        service.updateGroup(nGroup, selectedPreset.id);
-                                        service.updateStorage();
-                                        console.log('Add key');
-                                    }
-                                }
-                            }}
+                            onClick={state => state ? addKey(kdatum.value, selectedGroup, selectedPreset) : removeKey(kdatum.value, selectedGroup, selectedPreset)}
                         />
                     ))}
                 </KContainerLayout>
             </KBoardLayout>
         </BoardContainer>
-    );*/
-    return (
-        <>
-        </>
-    )
+    );
 }

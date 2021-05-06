@@ -39,6 +39,7 @@ export default function KButton({area, selectionColor, value, isSelected, onClic
     const [selected, setSelected] = useState(isSelected)
 
     const clickEvent = () => {
+        console.log("KButton clicked")
         onClick(!selected);
         setSelected(!selected);
     }

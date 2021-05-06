@@ -36,8 +36,9 @@ const RightPanel = styled.div`
 `;
 
 function App() {
-
+    const [presets, setPresets] = useState([]);
     const [selectedPreset, setSelectedPreset] = useState(undefined);
+    const [selectedGroup, setSelectedGroup] = useState(undefined);
 
     return (
         <MainLayout>
@@ -45,11 +46,11 @@ function App() {
                 <PanelTitle>
                     Hyper<TitleDecorator>Z</TitleDecorator>
                 </PanelTitle>
-                <ControlPanel onSelectionChanged={(preset) => setSelectedPreset(preset)} />
+                <ControlPanel onPresetsChanged={setPresets} onSelectedPresetChanged={setSelectedPreset} onSelectedGroupChanged={setSelectedGroup} />
             </LeftPanel>
 
             <RightPanel>
-                <Keyboard preset={selectedPreset}></Keyboard>
+                <Keyboard selectedPreset={selectedPreset} selectedGroup={selectedGroup} presets={presets}></Keyboard>
             </RightPanel>
         </MainLayout>
     );
