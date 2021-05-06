@@ -14,7 +14,6 @@ export default function ControlPanel(props) {
     const [presets, setPresets] = useState([]);
     const [selectedPreset, setSelectedPreset] = useState(undefined);
     const [selectedGroup, setSelectedGroup] = useState(undefined);
-    const [groupPanelVisible, makeGroupVisible] = useState(false);
 
     const addPreset = (value) => {
         window.localStorage.setItem(
@@ -90,11 +89,14 @@ export default function ControlPanel(props) {
             }
             return prs
         })
+
         window.localStorage.setItem(
             constants.PRESETS_STORAGE,
             JSON.stringify([...listCopy])
         );
         updateList();
+
+        
     }
 
     const removeGroup = (id, presetId) => {
@@ -110,15 +112,28 @@ export default function ControlPanel(props) {
             JSON.stringify([...listCopy])
         );
         updateList();
+
+        if(id === selectedGroup && presetId === selectedPreset) {
+            window.localStorage.setItem(
+                constants.SELECTED_GROUP,
+                JSON.stringify("none")
+            );
+           
+            updateSelGroup();
+        }
     }
 
-    useEffect(() => {updateList()}, []) 
+    useEffect(() => {
+        updateList();
+        updateSelPreset();
+        updateSelGroup();
+    }, []) 
 
     const updateList = () => {
         const list = JSON.parse(
             window.localStorage.getItem(constants.PRESETS_STORAGE)
         );
-        setPresets(list ? list : []);
+        setPresets(list || []);
         console.log("Updated preset list")
     }
 
@@ -131,7 +146,7 @@ export default function ControlPanel(props) {
     }
     const updateSelGroup = () => {
         const grp = JSON.parse(
-            window.localStorage.getItem(constants.PRESETS_STORAGE)
+            window.localStorage.getItem(constants.SELECTED_GROUP)
         );
        
         setSelectedGroup(grp === "none" ? undefined : grp);
@@ -147,6 +162,7 @@ export default function ControlPanel(props) {
             <OptionControlList
                 placeholder={"Your preset name here"}
                 list={presets}
+                selectedId={selectedPreset}
                 onAdd={(value) => addPreset(value)}
                 onRemove={(id) => removePreset(id)}
                 onSelectionChanged={(id) => {
@@ -157,6 +173,13 @@ export default function ControlPanel(props) {
                     );
                    
                     updateSelPreset();
+
+                    window.localStorage.setItem(
+                        constants.SELECTED_GROUP,
+                        JSON.stringify("none")
+                    );
+                   
+                    updateSelGroup();
                     
                 }}
                 onColorChanged={(color, preset, e) =>
@@ -168,9 +191,17 @@ export default function ControlPanel(props) {
                     placeholder={"Your group name here"}
                     list={presets.find(prs => prs.id === selectedPreset)?.groups || []}
                     areItemsToggle
+                    selectedId={selectedGroup}
                     onAdd={(value) => addGroup(value, selectedPreset)}
                     onRemove={(id) => removeGroup(id, selectedPreset)}
-                    onSelectionChanged={(id) => setSelectedGroup(id)}
+                    onSelectionChanged={(id) => {
+                        window.localStorage.setItem(
+                            constants.SELECTED_GROUP,
+                            JSON.stringify(id || "none")
+                        );
+                       
+                        updateSelGroup();
+                    }}
                     onColorChanged={(color, group, e) =>
                         onGroupColorChanged(color, group, selectedPreset, e)
                     }

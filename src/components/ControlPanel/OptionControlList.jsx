@@ -20,6 +20,7 @@ const ControlListContainer = styled.div`
 export default function OptionControlList({
     placeholder,
     list,
+    selectedId,
     areItemsToggle = false,
     onAdd,
     onRemove,
@@ -31,8 +32,8 @@ export default function OptionControlList({
 
     const onClickEvent = (id) => {
         let nSelected = undefined;
-        nSelected = (areItemsToggle && id === selected) ? undefined : id;
-        setSelected(nSelected);
+        nSelected = (areItemsToggle && id === selectedId) ? undefined : id;
+        //setSelected(nSelected);
         onSelectionChanged(nSelected)
     }
 
@@ -49,7 +50,7 @@ export default function OptionControlList({
                     title={item.title}
                     color={item.color}
                     key={nanoid()}
-                    selected={selected === item.id}
+                    selected={selectedId === item.id}
                     onColorChanged={(color, e) => onColorChanged(color, item, e)}
                     onClick={() => onClickEvent(item.id)}
                     onRemoveClicked={() => onRemove(item.id)}
