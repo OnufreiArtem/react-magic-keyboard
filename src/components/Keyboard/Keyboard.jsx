@@ -1,10 +1,10 @@
 import { nanoid } from "nanoid";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import * as constants from "../constants";
-import * as service from "../utils";
+import * as service from "../utils"
 
 import KButton from "./KButton";
 
@@ -58,109 +58,6 @@ const LogoFeature = styled.span`
 
 function Keyboard({ presets, selectedPreset = undefined, selectedGroup = undefined }) {
 
-    const addKey = (key, groupId, presetId) => {
-        let listCopy = [...getListFromStore()];
-
-        console.log(listCopy)
-        listCopy = listCopy.map(prs => {
-            if(prs.id === presetId) {
-                prs.groups = prs.groups.map(grp => {
-                    if(grp.id === groupId) {
-                        grp.keys = [...new Set([...grp.keys, key])];
-                    } else {
-                        grp.keys = grp.keys.filter(k => k !== key);
-                    }
-                    return grp;
-                })
-            }
-            return prs;
-        })
-        console.log(listCopy)
-
-        window.localStorage.setItem(
-            constants.PRESETS_STORAGE,
-            JSON.stringify([...listCopy])
-        );
-        updateList();
-    }
-
-    const removeKey = (key, groupId, presetId) => {
-
-        let listCopy = [...getListFromStore()];
-
-        listCopy = listCopy.map(prs => {
-            if(prs.id === presetId) {
-                prs.groups = prs.groups.map(grp => {
-                    if(grp.id === groupId) {
-                        grp.keys = grp.keys.filter(k => k !== key);
-                    }
-                    return grp;
-                })
-            }
-            return prs;
-        })
-
-        window.localStorage.setItem(
-            constants.PRESETS_STORAGE,
-            JSON.stringify([...listCopy])
-        );
-        updateList();
-
-    }
-
-    useEffect(() => {
-        updateList();
-        updateSelPreset();
-        updateSelGroup();
-    }, [])
-
-    const getListFromStore = () => {
-        return [...JSON.parse(window.localStorage.getItem(constants.PRESETS_STORAGE)) || []]
-    }
-
-    const updateList = () => {
-        const list = JSON.parse(
-            window.localStorage.getItem(constants.PRESETS_STORAGE)
-        );
-        //setPresets(list || []);
-        console.log("Updated preset list in Keyboard")
-    }
-
-    const updateSelPreset = () => {
-        const prs = JSON.parse(
-            window.localStorage.getItem(constants.SELECTED_PRESET)
-        );
-        //setSelectedPreset(prs === "none" ? undefined : prs);
-        console.log("Updated selected preset in Keyboard")
-    }
-    const updateSelGroup = () => {
-        const grp = JSON.parse(
-            window.localStorage.getItem(constants.SELECTED_GROUP)
-        );
-       
-        //setSelectedGroup(grp === "none" ? undefined : grp);
-        console.log("Updated selected group in Keyboard")
-    }
-
-    const isBtnSelected = (value, presetId, groupId) => {
-        if(presetId === undefined) return false;
-        if(groupId === undefined) return getListFromStore().find(prs => prs.id === presetId)?.groups.reduce((acc, curr) => [...acc, ...curr.keys], []).includes(value)
-        return getListFromStore().
-            find(prs => prs.id === presetId)?.groups.
-            find(grp => grp.id === groupId)?.keys.includes(value) || false;
-    }
-
-    const peakColor = (value, presetId, groupId) => {
-        if(presetId) {
-            if(groupId) {
-                return getListFromStore().find(prs => prs.id === presetId).groups.find(grp => grp.id === groupId)?.color || "#fff"           
-            }
-            return getListFromStore().find(prs => prs.id === presetId).groups.find(grp => grp.keys.includes(value))?.color || '#fff'
-        }
-
-        return '#fff';
-    }
-
     return (
         <BoardContainer>
             <KBoardLayout>
@@ -173,10 +70,10 @@ function Keyboard({ presets, selectedPreset = undefined, selectedGroup = undefin
                         <KButton
                             key={nanoid()}
                             area={kdatum.area}
-                            isSelected={isBtnSelected(kdatum.value, selectedPreset, selectedGroup)}
-                            selectionColor={peakColor(kdatum.value, selectedPreset, selectedGroup)}
+                            isSelected={service.isBtnSelected(kdatum.value, selectedPreset, selectedGroup)}
+                            selectionColor={service.peakColor(kdatum.value, selectedPreset, selectedGroup)}
                             value={kdatum.value.toUpperCase()}
-                            onClick={state => state ? addKey(kdatum.value, selectedGroup, selectedPreset) : removeKey(kdatum.value, selectedGroup, selectedPreset)}
+                            onClick={state => state ? service.addKey(kdatum.value, selectedGroup, selectedPreset) : service.removeKey(kdatum.value, selectedGroup, selectedPreset)}
                         />
                     ))}
                 </KContainerLayout>

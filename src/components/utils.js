@@ -2,25 +2,6 @@ import { nanoid } from "nanoid";
 
 import { PRESETS_STORAGE, SELECTED_PRESET, SELECTED_GROUP } from "./constants"
 
-/*  Logic for presets and groups */
-let presetList = JSON.parse(window.localStorage.getItem(PRESETS_STORAGE));
-
-if (presetList === undefined || presetList === null) {
-    presetList = [];
-}
-
-export function getPresetListRef() {
-    return presetList;
-}
-
-export function getPresetList() {
-    return [...presetList];
-}
-
-export function getPresetGroups(presetId) {
-    return presetList.find(item => item.id === presetId)?.groups;
-}
-
 export function preset(title, color) {
     return {
         id: nanoid(),
@@ -39,113 +20,71 @@ export function group(title, color) {
     };
 }
 
-export function addPreset(preset) {
-    presetList =
-        presetList.filter((prs) => prs.id === preset.id).length === 0
-            ? [...presetList, preset]
-            : [...presetList];
+export function setPresetsStorage(list) {
+    window.localStorage.setItem(
+        PRESETS_STORAGE,
+        JSON.stringify([...list])
+    );
 }
 
-export function findPreset(id) {
-    return getPresetList().find(prs => prs.id === id);
+export function getPresetsFromStore() {
+    return [...JSON.parse(window.localStorage.getItem(PRESETS_STORAGE)) || []]
 }
 
-export function addGroup(group, presetId) {
-    presetList = presetList.map((preset) => {
-        if (
-            preset.id === presetId &&
-            !preset.groups.find(grp => grp.id === group.id)
-        ) {
-            preset.groups.push(group);
-        }
-        return preset;
-    });
-}
+export const addKey = (key, groupId, presetId) => {
+    let listCopy = [...getPresetsFromStore()];
 
-export function findGroup(id, presetId) {
-    return getPresetList().find(prs => prs.id === presetId)?.groups.find(grp => grp.id === id);
-}
-
-
-export function removePreset(presetId) {
-    presetList = presetList.filter((prs) => prs.id !== presetId);
-}
-
-export function removeGroup(groupId, presetId) {
-    presetList = presetList.map(prs => {
-        if(prs.id === presetId){
-            prs.groups = prs.groups.filter(grp => grp.id !== groupId);
+    listCopy = listCopy.map(prs => {
+        if(prs.id === presetId) {
+            prs.groups = prs.groups.map(grp => {
+                if(grp.id === groupId) {
+                    grp.keys = [...new Set([...grp.keys, key])];
+                } else {
+                    grp.keys = grp.keys.filter(k => k !== key);
+                }
+                return grp;
+            })
         }
         return prs;
     })
+    
+    setPresetsStorage(listCopy);
 }
 
-export function updatePreset(preset) {
-    if(presetList.filter(prs => prs.id === preset.Id).length !== 0) {
-        removePreset(preset.id);
-        addPreset(preset);
-    }
-}
+export const removeKey = (key, groupId, presetId) => {
 
-export function updateGroup(group, presetId) {
-    presetList = presetList.map(prs => {
-       if(prs.id === presetId && prs.groups.find(grp => grp.id === group.id)) {
-           prs.groups = prs.groups.map(grp => {
-                if(grp.id === group.id) return group;
+    let listCopy = [...getPresetsFromStore()];
+
+    listCopy = listCopy.map(prs => {
+        if(prs.id === presetId) {
+            prs.groups = prs.groups.map(grp => {
+                if(grp.id === groupId) {
+                    grp.keys = grp.keys.filter(k => k !== key);
+                }
                 return grp;
-           });
-       }
-       return prs;
+            })
+        }
+        return prs;
     })
+
+    setPresetsStorage(listCopy);
 }
 
-export function updateStorage() {
-    window.localStorage.setItem(PRESETS_STORAGE, JSON.stringify(presetList));
+export const isBtnSelected = (value, presetId, groupId) => {
+    if(presetId === undefined) return false;
+    if(groupId === undefined) return getPresetsFromStore().find(prs => prs.id === presetId)?.groups.reduce((acc, curr) => [...acc, ...curr.keys], []).includes(value)
+    return getPresetsFromStore().find(prs => prs.id === presetId)?.groups.find(grp => grp.id === groupId)?.keys.includes(value) || false;
 }
 
-/* Logic for selected preset */
+export const peakColor = (value, presetId, groupId) => {
+    if(presetId) {
+        if(groupId) {
+            return getPresetsFromStore().find(prs => prs.id === presetId).groups.find(grp => grp.id === groupId)?.color || "#fff"           
+        }
+        return getPresetsFromStore().find(prs => prs.id === presetId).groups.find(grp => grp.keys.includes(value))?.color || '#fff'
+    }
 
-export let selectedPreset = getSPFromStorage();
-
-if(!findPreset(selectedPreset?.id)) selectedPreset = undefined;
-
-export function getSelectedPreset() {
-    return selectedPreset ? Object.assign(selectedPreset) : undefined;
-} 
-
-export function updateSelectedPreset(nSelected) {
-    window.localStorage.setItem(SELECTED_PRESET, JSON.stringify(nSelected ? nSelected : 'none'));
+    return '#fff';
 }
 
-export function getSPFromStorage(){
-    const sp = JSON.parse(window.localStorage.getItem(SELECTED_PRESET));
-    return sp === 'none' ? undefined : sp;
-}
 
-/* Logic for selected group */
-
-let selectedGroup = JSON.parse(window.localStorage.getItem(SELECTED_GROUP));
-selectedGroup = selectedGroup === 'none' ? undefined : selectedGroup;
-
-if(!findGroup(selectedGroup?.id)) selectedGroup = undefined;
-
-export function getSelectedGroup() {
-    return selectedGroup ? Object.assign(selectedGroup) : undefined;
-} 
-
-export function updateSelectedGroup(nSelected) {
-    window.localStorage.setItem(SELECTED_GROUP, JSON.stringify(nSelected ? nSelected : 'none'));
-}
-
-export function getSGFromStorage(){
-    const sg = JSON.parse(window.localStorage.getItem(SELECTED_GROUP));
-    return sg === 'none' ? undefined : sg;
-}
-
-/* Logic for selected color */
-
-export let selectedPresetColor = selectedPreset?.color || '#fff';
-
-export function setSelectedPresetColor(color) {
-    selectedPresetColor = color;
-}
