@@ -27,15 +27,15 @@ export default function PopupPicker(props) {
 
     const onChangeEvent = (color, e) => {
         props.onChange(color, e);
-        setColorPicked(color);
     }
 
     return (
-        <ColorSquareLayout>
-            <ColorSquare color={colorPicked} onClick={e => {e.stopPropagation(); setShowPicker(!showPicker)}}></ColorSquare>
+        <ColorSquareLayout onClick={(e) => e.stopPropagation()}>
+            <ColorSquare color={colorPicked} onClick={e => {setShowPicker(!showPicker)}}></ColorSquare>
             { showPicker && (
                 <PickerContainer>
-                    <HexColorPicker color={colorPicked} onChange={ (color, e) => onChangeEvent(color, e)} />
+                    <HexColorPicker color={colorPicked} onChange={ (color, e) => {setColorPicked(color)}} />
+                    <button onClick={(e) => onChangeEvent(colorPicked, e)}>Save color</button>
                 </PickerContainer>
             ) }
         </ColorSquareLayout>

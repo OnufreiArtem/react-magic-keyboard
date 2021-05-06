@@ -58,7 +58,7 @@ const LogoFeature = styled.span`
 export default function KeyBoard({ preset, groups }) {
     const [selectedPreset, setSelectedPreset] = useState(undefined);
     const [selectedGroup, setSelectedGroup] = useState(undefined);
-
+/*
     useEffect(() => {
         const timer = setInterval(() => {
             console.log("Called");
@@ -172,5 +172,9 @@ export default function KeyBoard({ preset, groups }) {
                 </KContainerLayout>
             </KBoardLayout>
         </BoardContainer>
-    );
+    );*/
+    return (
+        <>
+        </>
+    )
 }

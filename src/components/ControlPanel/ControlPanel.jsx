@@ -4,97 +4,143 @@ import styled from "styled-components";
 import OptionControlList from "./OptionControlList";
 
 import * as service from "../utils";
+import * as constants from "../constants";
 
 const ControlPanelContainer = styled.div`
     padding: 20px;
 `;
 
 export default function ControlPanel(props) {
-    const [presets, setPresets] = useState(service.getPresetList());
-    const [selectedPreset, setSelectedPreset] = useState(
-        service.getSelectedPreset()
-    );
-    const [selectedGroup, setSelectedGroup] = useState(
-        service.getSelectedGroup()
-    );
+    const [presets, setPresets] = useState([]);
+    const [selectedPreset, setSelectedPreset] = useState(undefined);
+    const [selectedGroup, setSelectedGroup] = useState(undefined);
     const [groupPanelVisible, makeGroupVisible] = useState(false);
 
     const addPreset = (value) => {
-        const nPreset = service.preset(value, `#fff`);
-        service.addPreset(nPreset);
-        service.updateStorage();
-        setPresets(service.getPresetList());
-        console.log(`adding ${value}`);
+        window.localStorage.setItem(
+            constants.PRESETS_STORAGE,
+            JSON.stringify([...presets, service.preset(value, '#fff')])
+        );
+        updateList();
     };
 
     const removePreset = (id) => {
-        console.log(`Selection removing: ${id === selectedPreset}`);
-        if (id === selectedPreset) setSelectedPreset(undefined);
-        console.log(`Selected preset: ${selectedPreset} `);
-        service.removePreset(id);
-        service.updateStorage();
-        setPresets(service.getPresetList());
-        console.log(`removing ${id}`);
+        window.localStorage.setItem(
+            constants.PRESETS_STORAGE,
+            JSON.stringify([...presets.filter((prs) => prs.id !== id)])
+        );
+        updateList();
+
+        if(id === selectedPreset) {
+            window.localStorage.setItem(
+                constants.SELECTED_PRESET,
+                JSON.stringify("none")
+            );
+
+            updateSelPreset();
+        }
     };
 
     const onPresetColorChanged = (color, preset, e) => {
-        let presetCopy = Object.assign(preset);
-        presetCopy.color = color;
-        service.updatePreset(presetCopy);
-        service.updateStorage();
+        //console.log(color);
+        let listCopy = [...presets];
+        listCopy = listCopy.map(prs => {
+            if(prs.id === preset.id) return {...prs, color: color};
+            return prs;
+        })
+        //console.log(listCopy)
+        window.localStorage.setItem(
+            constants.PRESETS_STORAGE,
+            JSON.stringify([...listCopy])
+        );
+        updateList();
+    };
 
-        if(preset?.id === selectedPreset) {
-            service.updateSelectedPreset({...service.findPreset(selectedPreset)});
-        }
+    const onGroupColorChanged = (color, group, presetId, e) => {
+        if(!presetId) return;
 
-    }
+        console.log(color)
 
-    const onGroupColorChanged = (color, group, e) => {
-        let groupCopy = Object.assign(group);
-        groupCopy.color = color;
-        service.updatePreset(groupCopy);
-        service.updateStorage();
-        service.updateSelectedGroup(group);
+        let listCopy = [...presets];
+        console.log(listCopy)
+        listCopy = listCopy.map(prs => {
+            if(prs.id === presetId) {
+                prs.groups = prs.groups.map(grp => {
+                    if(grp.id === group.id) return {...grp, color: color};
+                    return grp;
+                })
+
+            }
+            return prs
+        })
+        console.log(listCopy)
+
+        window.localStorage.setItem(
+            constants.PRESETS_STORAGE,
+            JSON.stringify([...listCopy])
+        );
+        updateList();
     };
 
     const addGroup = (value, presetId) => {
-        const nGroup = service.group(value, `#fff`);
-        service.addGroup(nGroup, presetId);
-        service.updateStorage();
-        setPresets(service.getPresetList());
-        service.updateSelectedPreset(service.findPreset(selectedPreset));
-    };
+        let listCopy = [...presets];
+        listCopy = listCopy.map(prs => {
+            if(prs.id === presetId) {
+                prs.groups.push(service.group(value, '#fff'))
+            }
+            return prs
+        })
+        window.localStorage.setItem(
+            constants.PRESETS_STORAGE,
+            JSON.stringify([...listCopy])
+        );
+        updateList();
+    }
 
     const removeGroup = (id, presetId) => {
-        if (id === selectedGroup) setSelectedGroup(undefined);
-        service.removeGroup(id, presetId);
-        service.updateStorage();
-        setPresets(service.getPresetList());
-    };
-
-    useEffect(() => {
-        if (presets.length === 0) setSelectedPreset(undefined);
-    }, [presets]);
-
-    useEffect(() => {
-        if (!selectedPreset) {
-            setSelectedGroup(undefined);
-            makeGroupVisible(false);
-            console.log(`No preset selected`);
-        } else {
-            makeGroupVisible(true);
-            console.log(`Selected: ${selectedPreset}`);
-        }
-        service.updateSelectedPreset(service.findPreset(selectedPreset));
-        setSelectedGroup(undefined);
-        console.log(selectedPreset)
-    }, [selectedPreset]);
-
-    useEffect(() => {
-        service.updateSelectedGroup(
-            service.findGroup(selectedGroup, selectedPreset)
+        let listCopy = [...presets];
+        listCopy = listCopy.map(prs => {
+            if(prs.id === presetId) {
+                prs.groups = [...prs.groups.filter(grp => grp.id !== id)]
+            }
+            return prs
+        })
+        window.localStorage.setItem(
+            constants.PRESETS_STORAGE,
+            JSON.stringify([...listCopy])
         );
-    }, [selectedGroup, selectedPreset]);
+        updateList();
+    }
+
+    useEffect(() => {updateList()}, []) 
+
+    const updateList = () => {
+        const list = JSON.parse(
+            window.localStorage.getItem(constants.PRESETS_STORAGE)
+        );
+        setPresets(list ? list : []);
+        console.log("Updated preset list")
+    }
+
+    const updateSelPreset = () => {
+        const prs = JSON.parse(
+            window.localStorage.getItem(constants.SELECTED_PRESET)
+        );
+        setSelectedPreset(prs === "none" ? undefined : prs);
+        console.log("Updated selected preset")
+    }
+    const updateSelGroup = () => {
+        const grp = JSON.parse(
+            window.localStorage.getItem(constants.PRESETS_STORAGE)
+        );
+       
+        setSelectedGroup(grp === "none" ? undefined : grp);
+        console.log("Updated selected group")
+    }
+
+    const findPreset = (id) => {
+        return presets.find(prs => prs.id === id);
+    }
 
     return (
         <ControlPanelContainer>
@@ -103,27 +149,30 @@ export default function ControlPanel(props) {
                 list={presets}
                 onAdd={(value) => addPreset(value)}
                 onRemove={(id) => removePreset(id)}
-                onSelectionChanged={
-                    (id) =>{
-                        setSelectedPreset(id);
-                        setSelectedGroup(undefined);
-                    }
-   
-                }
+                onSelectionChanged={(id) => {
+
+                    window.localStorage.setItem(
+                        constants.SELECTED_PRESET,
+                        JSON.stringify(id)
+                    );
+                   
+                    updateSelPreset();
+                    
+                }}
                 onColorChanged={(color, preset, e) =>
                     onPresetColorChanged(color, preset, e)
                 }
             />
-            {groupPanelVisible ? (
+            {(selectedPreset !== undefined && presets.length !== 0) ? (
                 <OptionControlList
                     placeholder={"Your group name here"}
-                    list={service.getPresetGroups(selectedPreset)}
+                    list={presets.find(prs => prs.id === selectedPreset)?.groups || []}
                     areItemsToggle
                     onAdd={(value) => addGroup(value, selectedPreset)}
                     onRemove={(id) => removeGroup(id, selectedPreset)}
                     onSelectionChanged={(id) => setSelectedGroup(id)}
                     onColorChanged={(color, group, e) =>
-                        onGroupColorChanged(color, group, e)
+                        onGroupColorChanged(color, group, selectedPreset, e)
                     }
                 />
             ) : (
