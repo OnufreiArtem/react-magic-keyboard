@@ -71,9 +71,12 @@ function Keyboard({ presets, selectedPreset = undefined, selectedGroup = undefin
                             key={nanoid()}
                             area={kdatum.area}
                             isSelected={service.isBtnSelected(kdatum.value, selectedPreset, selectedGroup)}
+                            isClickable={selectedGroup !== undefined}
                             selectionColor={service.peakColor(kdatum.value, selectedPreset, selectedGroup)}
                             value={kdatum.value.toUpperCase()}
-                            onClick={state => state ? service.addKey(kdatum.value, selectedGroup, selectedPreset) : service.removeKey(kdatum.value, selectedGroup, selectedPreset)}
+                            onClick={state => {
+                                state ? service.addKey(kdatum.value, selectedGroup, selectedPreset) : service.removeKey(kdatum.value, selectedGroup, selectedPreset)
+                            }}
                         />
                     ))}
                 </KContainerLayout>

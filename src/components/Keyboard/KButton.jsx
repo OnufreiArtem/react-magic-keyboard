@@ -35,11 +35,12 @@ const KButtonLayout = styled.div`
 
 `
 
-function KButton({area, selectionColor, value, isSelected, onClick}) {
+function KButton({area, selectionColor, value, isSelected, isClickable, onClick, }) {
 
     const [selected, setSelected] = useState(isSelected)
 
     const clickEvent = () => {
+        if(!isClickable) return;
         onClick(!selected);
         setSelected(!selected);
     }
@@ -52,6 +53,7 @@ KButton.propTypes = {
     selectionColor: PropTypes.string,
     value: PropTypes.string,
     isSelected: PropTypes.bool,
+    isClickable: PropTypes.bool,
     onClick: PropTypes.func,
 }
 
