@@ -5,7 +5,6 @@ import styled from "styled-components";
 import OptionControlList from "./OptionControlList";
 
 import * as service from "../utils";
-import * as constants from "../constants";
 
 const ControlPanelContainer = styled.div`
     padding: 20px;
@@ -21,52 +20,35 @@ function ControlPanel({
     const [selectedGroup, setSelectedGroup] = useState(undefined);
 
     const addPreset = (value) => {
-        window.localStorage.setItem(
-            constants.PRESETS_STORAGE,
-            JSON.stringify([...getListFromStore(), service.preset(value, '#fff')])
-        );
+        service.setPresetsStorage([...service.getPresetsFromStore(), service.preset(value, '#fff')])
         updateList();
     };
 
     const removePreset = (id) => {
-        window.localStorage.setItem(
-            constants.PRESETS_STORAGE,
-            JSON.stringify([...getListFromStore().filter((prs) => prs.id !== id)])
-        );
+        service.setPresetsStorage(service.getPresetsFromStore().filter((prs) => prs.id !== id))
         updateList();
 
         if(id === selectedPreset) {
-            window.localStorage.setItem(
-                constants.SELECTED_PRESET,
-                JSON.stringify("none")
-            );
-
+            service.clearSelectedPreset();
             updateSelPreset();
         }
     };
 
     const onPresetColorChanged = (color, preset, e) => {
-        //console.log(color);
-        let listCopy = [...getListFromStore()];
+        let listCopy = [...service.getPresetsFromStore()];
         listCopy = listCopy.map(prs => {
             if(prs.id === preset.id) return {...prs, color: color};
             return prs;
         })
-        //console.log(listCopy)
-        window.localStorage.setItem(
-            constants.PRESETS_STORAGE,
-            JSON.stringify([...listCopy])
-        );
+        service.setPresetsStorage(listCopy);
         updateList();
     };
 
     const onGroupColorChanged = (color, group, presetId, e) => {
         if(!presetId) return;
 
-        console.log(color)
-
-        let listCopy = [...getListFromStore()];
-        console.log(listCopy)
+        let listCopy = [...service.getPresetsFromStore()];
+        
         listCopy = listCopy.map(prs => {
             if(prs.id === presetId) {
                 prs.groups = prs.groups.map(grp => {
@@ -77,59 +59,37 @@ function ControlPanel({
             }
             return prs
         })
-        console.log(listCopy)
-
-        window.localStorage.setItem(
-            constants.PRESETS_STORAGE,
-            JSON.stringify([...listCopy])
-        );
+        service.setPresetsStorage(listCopy);
         updateList();
     };
 
     const addGroup = (value, presetId) => {
-        let listCopy = [...getListFromStore()];
+        let listCopy = [...service.getPresetsFromStore()];
         listCopy = listCopy.map(prs => {
             if(prs.id === presetId) {
                 prs.groups.push(service.group(value, '#fff'))
             }
             return prs
         })
-
-        window.localStorage.setItem(
-            constants.PRESETS_STORAGE,
-            JSON.stringify([...listCopy])
-        );
+        service.setPresetsStorage(listCopy);
         updateList();
-
-        
     }
 
     const removeGroup = (id, presetId) => {
-        let listCopy = [...getListFromStore()];
+        let listCopy = [...service.getPresetsFromStore()];
         listCopy = listCopy.map(prs => {
             if(prs.id === presetId) {
                 prs.groups = [...prs.groups.filter(grp => grp.id !== id)]
             }
             return prs
         })
-        window.localStorage.setItem(
-            constants.PRESETS_STORAGE,
-            JSON.stringify([...listCopy])
-        );
+        service.setPresetsStorage(listCopy);
         updateList();
 
         if(id === selectedGroup && presetId === selectedPreset) {
-            window.localStorage.setItem(
-                constants.SELECTED_GROUP,
-                JSON.stringify("none")
-            );
-           
+            service.clearSelectedGroup()
             updateSelGroup();
         }
-    }
-
-    const getListFromStore = () => {
-        return [...JSON.parse(window.localStorage.getItem(constants.PRESETS_STORAGE)) || []]
     }
 
     useEffect(() => {
@@ -139,31 +99,24 @@ function ControlPanel({
     }, []) 
 
     const updateList = () => {
-        const list = JSON.parse(
-            window.localStorage.getItem(constants.PRESETS_STORAGE)
-        );
-        setPresets(list || []);
-        onPresetsChanged(list || []);
-        console.log("Updated preset list")
+        const list = service.getPresetsFromStore();
+        setPresets(list);
+        onPresetsChanged(list);
+        console.log("Updated preset list");
     }
 
     const updateSelPreset = () => {
-        const prs = JSON.parse(
-            window.localStorage.getItem(constants.SELECTED_PRESET)
-        );
-        setSelectedPreset(prs === "none" ? undefined : prs);
-        onSelectedPresetChanged(prs === "none" ? undefined : prs)
-        console.log("Updated selected preset")
+        const prs = service.getSelectedPreset();
+        setSelectedPreset(prs);
+        onSelectedPresetChanged(prs);
+        console.log("Updated selected preset");
     }
 
     const updateSelGroup = () => {
-        const grp = JSON.parse(
-            window.localStorage.getItem(constants.SELECTED_GROUP)
-        );
-       
-        setSelectedGroup(grp === "none" ? undefined : grp);
-        onSelectedGroupChanged(grp === "none" ? undefined : grp)
-        console.log("Updated selected group")
+        const grp = service.getSelectedGroup();
+        setSelectedGroup(grp);
+        onSelectedGroupChanged(grp);
+        console.log("Updated selected group");
     }
 
     return (
@@ -175,25 +128,12 @@ function ControlPanel({
                 onAdd={(value) => addPreset(value)}
                 onRemove={(id) => removePreset(id)}
                 onSelectionChanged={(id) => {
-
-                    window.localStorage.setItem(
-                        constants.SELECTED_PRESET,
-                        JSON.stringify(id)
-                    );
-                   
+                    service.setSelectedPreset(id);
                     updateSelPreset();
-
-                    window.localStorage.setItem(
-                        constants.SELECTED_GROUP,
-                        JSON.stringify("none")
-                    );
-                   
+                    service.clearSelectedGroup();
                     updateSelGroup();
-                    
                 }}
-                onColorChanged={(color, preset, e) =>
-                    onPresetColorChanged(color, preset, e)
-                }
+                onColorChanged={onPresetColorChanged}
             />
             {(selectedPreset !== undefined && presets.length !== 0) ? (
                 <OptionControlList
@@ -204,11 +144,7 @@ function ControlPanel({
                     onAdd={(value) => addGroup(value, selectedPreset)}
                     onRemove={(id) => removeGroup(id, selectedPreset)}
                     onSelectionChanged={(id) => {
-                        window.localStorage.setItem(
-                            constants.SELECTED_GROUP,
-                            JSON.stringify(id || "none")
-                        );
-                       
+                        service.setSelectedGroup(id, selectedPreset);
                         updateSelGroup();
                     }}
                     onColorChanged={(color, group, e) =>

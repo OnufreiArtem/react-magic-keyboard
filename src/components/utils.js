@@ -20,6 +20,42 @@ export function group(title, color) {
     };
 }
 
+export function setSelectedPreset(id) {
+    window.localStorage.setItem(
+        SELECTED_PRESET,
+        JSON.stringify(id || 'none')
+    );
+}
+
+export function clearSelectedPreset() {
+    setSelectedPreset(undefined)
+}
+
+export function setSelectedGroup(id) {
+    window.localStorage.setItem(
+        SELECTED_GROUP,
+        JSON.stringify(id || 'none')
+    );
+}
+
+export function clearSelectedGroup() {
+    setSelectedGroup(undefined);
+}
+
+export function getSelectedPreset() {
+    const prs = JSON.parse(
+        window.localStorage.getItem(SELECTED_PRESET)
+    );
+    return prs === 'none' ? undefined : prs;
+}
+
+export function getSelectedGroup() {
+    const grp = JSON.parse(
+        window.localStorage.getItem(SELECTED_GROUP)
+    );
+    return grp === 'none' ? undefined : grp;
+}
+
 export function setPresetsStorage(list) {
     window.localStorage.setItem(
         PRESETS_STORAGE,

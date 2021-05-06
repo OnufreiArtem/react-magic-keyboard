@@ -85,8 +85,8 @@ function Keyboard({ presets, selectedPreset = undefined, selectedGroup = undefin
 
 Keyboard.propTypes = {
     presets: PropTypes.arrayOf(PropTypes.object),
-    selectedPreset: PropTypes.object,
-    selectedGroup: PropTypes.object,
+    selectedPreset: PropTypes.string,
+    selectedGroup: PropTypes.string,
 }
 
 export default Keyboard;
