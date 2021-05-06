@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 import styled from 'styled-components';
 
@@ -34,15 +35,25 @@ const KButtonLayout = styled.div`
 
 `
 
-export default function KButton({area, selectionColor, value, isSelected, onClick}) {
+function KButton({area, selectionColor, value, isSelected, onClick}) {
 
     const [selected, setSelected] = useState(isSelected)
 
     const clickEvent = () => {
-        console.log("KButton clicked")
         onClick(!selected);
         setSelected(!selected);
     }
 
-    return <KButtonLayout area={area} color={selectionColor || `#fff`} selected={selected} onMouseDown={() => clickEvent()}>{value}</KButtonLayout>
+    return <KButtonLayout area={area} color={selectionColor || `#fff`} selected={selected} onMouseDown={clickEvent}>{value}</KButtonLayout>
 }
+
+KButton.propTypes = {
+    area: PropTypes.string,
+    selectionColor: PropTypes.string,
+    value: PropTypes.string,
+    isSelected: PropTypes.bool,
+    onClick: PropTypes.func,
+}
+
+export default KButton;
+

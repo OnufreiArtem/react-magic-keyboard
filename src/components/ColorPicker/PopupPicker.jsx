@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { HexColorPicker } from "react-colorful";
-import styled from 'styled-components'
+import styled from 'styled-components';
+import PropTypes from 'prop-types';
 
 
 const ColorSquareLayout = styled.div`
@@ -20,21 +21,26 @@ const PickerContainer = styled.div`
     position: absolute;
 `
 
-export default function PopupPicker(props) {
+function PopupPicker({color, onChange}) {
     
     const [showPicker, setShowPicker] = useState(false);
-    const [colorPicked, setColorPicked] = useState(props.color);
+    const [colorPicked, setColorPicked] = useState(color);
 
     const onChangeEvent = (color, e) => {
-        props.onChange(color, e);
+        onChange(color, e);
+    }
+
+    const onSquarePressed = (e) => {
+        if(showPicker) onChangeEvent(colorPicked, e)
+        setShowPicker(!showPicker);
     }
 
     return (
         <ColorSquareLayout onClick={(e) => e.stopPropagation()}>
-            <ColorSquare color={colorPicked} onClick={e => {setShowPicker(!showPicker); if(showPicker === true) onChangeEvent(colorPicked, e)}}></ColorSquare>
+            <ColorSquare color={colorPicked} onClick={onSquarePressed}></ColorSquare>
             { showPicker && (
                 <PickerContainer>
-                    <HexColorPicker color={colorPicked} onChange={ (color, e) => {setColorPicked(color)}} />
+                    <HexColorPicker color={colorPicked} onChange={(color, _) => setColorPicked(color)} />
                     <button onClick={(e) => onChangeEvent(colorPicked, e)}>Save color</button>
                 </PickerContainer>
             ) }
@@ -42,3 +48,11 @@ export default function PopupPicker(props) {
     )
     
 }
+
+PopupPicker.propTypes = {
+    color: PropTypes.string,
+    onChange: PropTypes.func,
+}
+
+
+export default PopupPicker;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from 'prop-types';
 
 import styled from "styled-components";
 import OptionControlList from "./OptionControlList";
@@ -10,7 +11,7 @@ const ControlPanelContainer = styled.div`
     padding: 20px;
 `;
 
-export default function ControlPanel({
+function ControlPanel({
     onPresetsChanged,
     onSelectedPresetChanged,
     onSelectedGroupChanged
@@ -154,7 +155,7 @@ export default function ControlPanel({
         onSelectedPresetChanged(prs === "none" ? undefined : prs)
         console.log("Updated selected preset")
     }
-    
+
     const updateSelGroup = () => {
         const grp = JSON.parse(
             window.localStorage.getItem(constants.SELECTED_GROUP)
@@ -220,3 +221,12 @@ export default function ControlPanel({
         </ControlPanelContainer>
     );
 }
+
+ControlPanel.propTypes = {
+    onPresetsChanged: PropTypes.func,
+    onSelectedPresetChanged: PropTypes.func,
+    onSelectedGroupChanged: PropTypes.func,
+}
+
+
+export default ControlPanel;

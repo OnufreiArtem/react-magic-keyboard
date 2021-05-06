@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import PropTypes from 'prop-types';
+
 import { nanoid } from 'nanoid';
 
 import styled from "styled-components";
@@ -17,7 +19,7 @@ const ControlListContainer = styled.div`
     padding: 10px;
 `;
 
-export default function OptionControlList({
+function OptionControlList({
     placeholder,
     list,
     selectedId,
@@ -28,7 +30,6 @@ export default function OptionControlList({
     onColorChanged,
 }) {
     const [inputContent, setInputContent] = useState("");
-    const [selected, setSelected] = useState(undefined);
 
     const onClickEvent = (id) => {
         let nSelected = undefined;
@@ -59,3 +60,16 @@ export default function OptionControlList({
         </ControlListContainer>
     );
 }
+
+OptionControlList.propTypes = {
+    placeholder: PropTypes.string,
+    list: PropTypes.arrayOf(PropTypes.object),
+    selectedId: PropTypes.string,
+    areItemsToggle: PropTypes.bool,
+    onAdd: PropTypes.func,
+    onRemove: PropTypes.func,
+    onSelectionChanged: PropTypes.func,
+    onColorChanged: PropTypes.func,
+}
+
+export default OptionControlList;

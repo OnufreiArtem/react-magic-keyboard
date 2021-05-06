@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import Keyboard from "./Keyboard/Keyboard";
 
-import * as service from "./utils";
-
 import styled from "styled-components";
 import ControlPanel from "./ControlPanel/ControlPanel";
 
