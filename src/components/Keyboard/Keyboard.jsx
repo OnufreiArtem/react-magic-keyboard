@@ -42,6 +42,8 @@ const KBoardLayout = styled.div`
     border-right-color: #050505;
     border-bottom-color: #302f2f;
     user-select: none;
+
+    box-shadow: 0 0 15px #000000AA;
 `;
 
 const KBoardLogo = styled.span`

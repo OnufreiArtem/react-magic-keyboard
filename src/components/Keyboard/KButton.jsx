@@ -10,12 +10,13 @@ const KButtonLayout = styled.div`
     justify-content: center;
     align-items: center;
     transition: .3s all;
-    cursor: pointer;
+    cursor: ${props => props.clickable ? `pointer;` : `not-allowed`};
+    
     border-radius: 10px;
 
-    color: white;
-    
+    color: ${props => props.selected ? (props.color || `white`) : `white`};
     box-shadow: 0 0 10px ${props => props.selected ? (props.color || `white`) : `transparent`};
+    text-shadow: 0 0 5px ${props => props.selected ? (props.color || `white`) : `white`};
     
 
     border-style: solid;
@@ -27,7 +28,7 @@ const KButtonLayout = styled.div`
     border-right-color: #050505;
     border-bottom-color: #302f2f;
 
-
+    
 
     &:hover {
         outline: 2px solid red;
@@ -45,7 +46,7 @@ function KButton({area, selectionColor, value, isSelected, isClickable, onClick,
         setSelected(!selected);
     }
 
-    return <KButtonLayout area={area} color={selectionColor || `#fff`} selected={selected} onMouseDown={clickEvent}>{value}</KButtonLayout>
+    return <KButtonLayout area={area} clickable={isClickable} color={selectionColor || `#fff`} selected={selected} onMouseDown={clickEvent}>{value}</KButtonLayout>
 }
 
 KButton.propTypes = {

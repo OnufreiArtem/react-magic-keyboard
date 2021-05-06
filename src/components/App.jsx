@@ -5,19 +5,19 @@ import styled from "styled-components";
 import ControlPanel from "./ControlPanel/ControlPanel";
 
 const MainLayout = styled.div`
-  display: flex;
+    display: flex;
 `;
 
 const LeftPanel = styled.div`
-    display: inline-block;
-    background-color: black;
+    background-color: #121211;
     height: 100vh;
     width: 800px;
-    overflow: hidden;
-    overflow-y: scroll;
+    padding: 50px 0;
 `;
 
 const PanelTitle = styled.span`
+    font-weight: bold;
+    font-family: 'Zen Dots', cursive;
     display: block;
     font-size: 3rem;
     color: white;
@@ -29,8 +29,8 @@ const TitleDecorator = styled.span`
 `;
 
 const RightPanel = styled.div`
-  display: inline-block;
-  width: 100%;
+    display: inline-block;
+    width: 100%;
 `;
 
 function App() {

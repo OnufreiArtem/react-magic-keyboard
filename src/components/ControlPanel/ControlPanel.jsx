@@ -8,6 +8,7 @@ import * as service from "../utils";
 
 const ControlPanelContainer = styled.div`
     padding: 20px;
+
 `;
 
 function ControlPanel({

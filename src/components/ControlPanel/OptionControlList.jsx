@@ -11,13 +11,48 @@ const AddInput = styled.input`
     padding: 10px;
     font-size: 1.4rem;
     border: none;
+    border-radius: 10px;
+    width: 100%;
+
+    &:focus { 
+        outline: none;
+    }
 `;
 
-const AddBtn = styled.button``;
+const AddBtn = styled.button`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    font-size: 1.4rem;
+    border: none;
+    border-radius: 999px;
+    padding: 30px;
+    color: white;
+    margin: 20px;
+    background-color: transparent;
+    transition: .3s all;
+    
+    &:hover {
+        background-color: #cccccc55;
+    }
+
+    &:focus { 
+        outline: none;
+    }
+
+`;
 
 const ControlListContainer = styled.div`
     padding: 10px;
 `;
+
+const ControlsContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`
 
 function OptionControlList({
     placeholder,
@@ -34,18 +69,35 @@ function OptionControlList({
     const onClickEvent = (id) => {
         let nSelected = undefined;
         nSelected = (areItemsToggle && id === selectedId) ? undefined : id;
-        //setSelected(nSelected);
         onSelectionChanged(nSelected)
+    }
+
+    const onAddEvent = () => {
+        if(inputContent === '') return;
+        onAdd(inputContent);
+        setInputContent('');
+    }
+
+    const onKeyEvent = (e) => {
+        if (e.key === "Enter") {
+            onAddEvent();
+        }
     }
 
     return (
         <ControlListContainer>
-            <AddInput
-                placeholder={placeholder || ""}
-                value={inputContent}
-                onChange={(e) => setInputContent(e.target.value)}
-            />
-            <AddBtn onClick={() => onAdd(inputContent)}>Add</AddBtn>
+            <ControlsContainer>
+                <AddInput
+                    placeholder={placeholder || ""}
+                    value={inputContent}
+                    onChange={(e) => setInputContent(e.target.value)}
+                    onKeyDown={(e) => onKeyEvent(e)}
+                />
+                <AddBtn onClick={onAddEvent}>
+                    <i className="fas fa-plus"></i>
+                </AddBtn>
+            </ControlsContainer> 
+            
             {list?.map((item) => 
                 <OptionColorItem
                     title={item.title}
